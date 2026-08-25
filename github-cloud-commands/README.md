@@ -1,6 +1,6 @@
 # GitHub Cloud & Remote Commands Guide
 
-A comprehensive, DevOps-focused reference guide for managing remote repositories on GitHub, handling distributed collaboration workflows, and using the GitHub CLI.
+A comprehensive, DevOps-focused reference guide for managing remote repositories on GitHub, handling distributed collaboration workflows, CI/CD automation, SSH authentication, and GitHub CLI operations.
 
 ---
 
@@ -97,7 +97,42 @@ A comprehensive, DevOps-focused reference guide for managing remote repositories
 
 ---
 
-## 🤝 2. Collaboration Workflows & Pull Requests (PR)
+## 🔑 2. SSH Key Setup & Authentication
+
+Using SSH keys provides secure, passwordless authentication between your workstation and GitHub.
+
+### Step 1: Generate an Ed25519 SSH Key Pair
+```bash
+ssh-keygen -t ed25519 -C "your.email@example.com"
+```
+*(Press Enter to accept default location `~/.ssh/id_ed25519` and optionally enter a secure passphrase).*
+
+### Step 2: Start SSH Agent & Add Key
+```bash
+# Start the SSH agent in the background
+eval "$(ssh-agent -s)"
+
+# Add private key to agent
+ssh-add ~/.ssh/id_ed25519
+```
+
+### Step 3: Copy Public Key & Add to GitHub
+```bash
+# Print public key to copy to clipboard
+cat ~/.ssh/id_ed25519.pub
+```
+1. Open **GitHub** -> **Settings** -> **SSH and GPG keys**.
+2. Click **New SSH key**, paste your key, and save.
+
+### Step 4: Test SSH Connection
+```bash
+ssh -T git@github.com
+# Expected output: Hi <username>! You've successfully authenticated...
+```
+
+---
+
+## 🤝 3. Collaboration Workflows & Pull Requests (PR)
 
 ### Inspecting Remote Branches: `git branch -r`
 - **Explanation:** Lists all remote-tracking branches cached locally from your configured remotes.
@@ -114,9 +149,7 @@ A comprehensive, DevOps-focused reference guide for managing remote repositories
   git switch --track origin/feature/dark-mode
   ```
 
-### Standard GitHub Pull Request Workflow (CLI & Git)
-Follow this step-by-step cycle when collaborating across teams:
-
+### Standard GitHub Pull Request Workflow
 ```mermaid
 graph LR
     A[1. Sync Main] --> B[2. Create Branch]
@@ -144,52 +177,186 @@ graph LR
    ```bash
    git push -u origin feature/order-receipts
    ```
-5. **Open Pull Request:**
-   - Navigate to your repository URL on GitHub or use GitHub CLI (`gh pr create`).
-   - Request peer review, pass automated CI checks, and merge.
+5. **Open Pull Request via GitHub CLI or Web UI:**
+   ```bash
+   gh pr create --title "feat(receipts): generate automated PDF receipts" --body "Implements PDF receipt generation."
+   ```
 
 ---
 
-## ⚡ 3. Advanced Hosting Tools: GitHub CLI (`gh`)
+## 🏷️ 4. Tags & Releases Distribution
 
-While standard Git manages source history, the **GitHub CLI (`gh`)** brings GitHub-native features (Issues, Pull Requests, Releases, Repositories) directly into your command line.
-
-### `gh auth login`
-- **Explanation:** Authenticates your terminal session with your GitHub account credentials via browser or personal access token.
+### `git push --tags`
+- **Explanation:** Pushes all local version tags up to the GitHub remote repository.
 - **Syntax:**
+  ```bash
+  git push <remote-name> --tags
+  git push <remote-name> <tag-name>
+  ```
+- **Example:**
+  ```bash
+  # Push a specific tag
+  git push origin v1.0.0
+
+  # Push all local tags in bulk
+  git push origin --tags
+  ```
+
+### `gh release create`
+- **Explanation:** Publishes a formal GitHub release bundled with release notes, changelogs, and binary assets.
+- **Syntax:**
+  ```bash
+  gh release create <tag> [<files>...] [--title "<title>"] [--notes "<notes>"]
+  ```
+- **Example:**
+  ```bash
+  # Create release from an existing tag with auto-generated release notes
+  gh release create v1.0.0 --title "v1.0.0 - Production Launch" --generate-notes
+
+  # Attach binary build artifacts to release
+  gh release create v1.0.0 ./dist/bundle.zip --title "v1.0.0" --notes "Production release assets"
+  ```
+
+---
+
+## ⚡ 5. GitHub CLI (`gh`): Repositories, Issues & PRs
+
+### Repository Management: `gh repo`
+- **Authentication:**
   ```bash
   gh auth login
   ```
-- **Example:**
+- **Create Repository:**
   ```bash
-  # Start interactive authentication workflow
-  gh auth login
+  # Create a remote repository and push current folder
+  gh repo create my-project --public --source=. --remote=origin --push
+  ```
+- **Clone & Fork:**
+  ```bash
+  # Clone directly via GitHub CLI
+  gh repo clone owner/repository-name
+
+  # Fork a repository to your account and clone locally
+  gh repo fork owner/repository-name --clone
   ```
 
-### `gh repo create`
-- **Explanation:** Creates a new repository on GitHub directly from your terminal and connects it to your local workspace.
-- **Syntax:**
+### Issue Management: `gh issue`
+- **Create Issue:**
   ```bash
-  gh repo create [<name>] [--public|--private] [--source=<path>] [--push]
+  gh issue create --title "bug: payment webhook timeout" --body "Webhook fails after 30s." --label "bug"
   ```
-- **Example:**
+- **List & View Issues:**
   ```bash
-  # Create a private GitHub repository from the current directory and push existing code
-  gh repo create my-awesome-app --private --source=. --remote=origin --push
+  # List open issues assigned to you
+  gh issue list --assignee "@me"
+
+  # View issue details and discussion
+  gh issue view 42
+  ```
+- **Close Issue:**
+  ```bash
+  gh issue close 42 --comment "Fixed in commit d3e4f5a"
   ```
 
-### `gh pr create` & `gh pr checkout`
-- **Explanation:** Creates pull requests and checks out teammate PRs locally without opening a web browser.
-- **Syntax:**
+### Pull Request Operations: `gh pr`
+- **Create PR:**
   ```bash
-  gh pr create --title "<title>" --body "<body>"
-  gh pr checkout <pr-number>
+  gh pr create --title "feat: payment gateway" --body "Closes #42"
   ```
-- **Example:**
+- **Check Out Teammate's PR:**
   ```bash
-  # Open a PR with title and summary
-  gh pr create --title "feat: integrate Stripe API" --body "Resolves issue #42"
+  gh pr checkout 105
+  ```
+- **Review & Merge PR:**
+  ```bash
+  # Approve PR
+  gh pr review 105 --approve -b "LGTM!"
 
-  # Check out PR #104 locally for testing and code review
-  gh pr checkout 104
+  # Merge PR using Squash & Merge and delete remote branch
+  gh pr merge 105 --squash --delete-branch
+  ```
+
+---
+
+## 🤖 6. CI/CD Automation: GitHub Actions via CLI (`gh workflow` / `gh run`)
+
+Interact with GitHub Actions pipelines directly inside your terminal without opening a browser.
+
+### Inspect & Trigger Workflows:
+```bash
+# List all GitHub Actions workflows in the repo
+gh workflow list
+
+# Manually trigger a workflow (workflow_dispatch)
+gh workflow run deploy.yml -f environment=production
+
+# View recent pipeline execution runs
+gh run list
+```
+
+### Monitor & Debug CI Runs:
+```bash
+# Watch a live CI/CD workflow run until completion
+gh run watch <run-id>
+
+# View failure logs for a failed run
+gh run view <run-id> --log-failed
+```
+
+---
+
+## 🛡️ 7. GitHub Governance & Configuration Files
+
+### `.github/CODEOWNERS`
+Defines individuals or teams responsible for reviewing code modified in specific repository directories.
+- **Location:** `.github/CODEOWNERS`
+- **Example File Content:**
+  ```text
+  # Default owners for everything in repository
+  * @core-dev-team
+
+  # Backend services owned by backend team
+  /src/backend/ @backend-team @lead-architect
+
+  # Security configurations require security lead approval
+  /.github/workflows/ @security-lead
+  /security/ @security-lead
+  ```
+
+### Branch Protection Rules (Policy as Code)
+Configured under **GitHub Settings -> Branches -> Branch protection rules**:
+- **Require a pull request before merging:** Prevents direct pushes to `main`.
+- **Require status checks to pass before merging:** Blocks merging unless CI tests pass.
+- **Require signed commits:** Enforces GPG/SSH commit signature verification.
+- **Do not allow bypassing the above settings:** Applies restrictions to repository admins.
+
+### `.github/workflows/ci.yml` (GitHub Actions CI Definition)
+- **Example continuous integration workflow configuration:**
+  ```yaml
+  name: Continuous Integration
+
+  on:
+    push:
+      branches: [ main ]
+    pull_request:
+      branches: [ main ]
+
+  jobs:
+    build-and-test:
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Check out repository
+          uses: actions/checkout@v4
+
+        - name: Setup Node.js environment
+          uses: actions/setup-node@v4
+          with:
+            node-version: 20
+
+        - name: Install dependencies
+          run: npm ci
+
+        - name: Run automated test suite
+          run: npm test
   ```
