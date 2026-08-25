@@ -1,517 +1,363 @@
-# Local Git Commands Guide
+# Local Git Commands: Basic, Medium & Advanced
 
-A dense, high-impact reference sheet for managing repositories, version history, debugging, and advanced workflows on your local machine.
+A structured, high-density reference sheet categorized by mastery levels—from essential day-to-day basics to intermediate branching and advanced repository forensics.
 
 ---
 
-## 🛠️ 1. Setup & Configuration
+## 🟢 TIER 1: BASIC (Foundations & Daily Essentials)
 
-### `git init`
+Commands every developer uses daily to initialize repositories, stage changes, record snapshots, and inspect working history.
+
+### 1. Setup & Configuration
+
+#### `git init`
 - **Explanation:** Initializes a brand new, empty Git repository inside the target directory by creating a `.git` metadata folder.
-- **Syntax:**
-  ```bash
-  git init [project-name]
-  ```
+- **Syntax:** `git init [project-name]`
 - **Example:**
   ```bash
-  # Initialize a repository in the current folder
+  # Initialize repo in current folder
   git init
 
-  # Initialize a repository inside a new subdirectory named 'api-service'
+  # Initialize repo in a new subfolder
   git init api-service
   ```
 
-### `git config`
-- **Explanation:** Reads and sets configuration variables that control repository behavior, user identity, and aliases across system, global, and local scopes.
-- **Syntax:**
-  ```bash
-  git config [--global|--local|--system] <key> "<value>"
-  ```
+#### `git config`
+- **Explanation:** Sets configuration variables controlling user identity, repository behavior, and global defaults.
+- **Syntax:** `git config [--global|--local|--system] <key> "<value>"`
 - **Example:**
   ```bash
-  # Set global committer name
   git config --global user.name "Jane Doe"
-
-  # Set repository-specific email address
-  git config --local user.email "jane@work.com"
+  git config --global user.email "jane@example.com"
   ```
 
 ---
 
-## 💾 2. Saving Changes
+### 2. Saving Changes (Working Tree & Staging)
 
-### `git status`
-- **Explanation:** Displays the working tree status, highlighting untracked, modified, and staged files.
-- **Syntax:**
-  ```bash
-  git status [-s|--short]
-  ```
+#### `git status`
+- **Explanation:** Displays the state of the working directory and staging area, highlighting tracked and untracked modifications.
+- **Syntax:** `git status [-s|--short]`
 - **Example:**
   ```bash
-  # Standard detailed status
-  git status
-
-  # Compact output for quick terminal scans
   git status -s
   ```
 
-### `git add`
-- **Explanation:** Adds file modifications in the working directory to the staging area (index) in preparation for the next commit.
-- **Syntax:**
-  ```bash
-  git add <file-path> | . | -A
-  ```
+#### `git add`
+- **Explanation:** Moves modified and new files from the working directory into the staging area (index) for the next commit.
+- **Syntax:** `git add <file-path> | . | -A`
 - **Example:**
   ```bash
-  # Stage a single file
-  git add src/index.js
+  # Stage single file
+  git add src/app.js
 
-  # Stage all new, modified, and deleted files in the repository
+  # Stage all changes
   git add -A
   ```
 
-### `git commit`
-- **Explanation:** Records a permanent snapshot of the staged changes to the repository history with a descriptive log message.
-- **Syntax:**
-  ```bash
-  git commit -m "<commit-message>" [-a]
-  ```
+#### `git commit`
+- **Explanation:** Records a permanent snapshot of staged changes into project history with a descriptive message.
+- **Syntax:** `git commit -m "<message>" [-a]`
 - **Example:**
   ```bash
-  # Commit staged changes with message
-  git commit -m "feat(auth): add OAuth2 token validation"
+  # Commit staged changes
+  git commit -m "feat(auth): implement JWT token verification"
 
-  # Automatically stage modified tracked files and commit
-  git commit -am "fix(router): handle 404 redirect edge case"
+  # Stage tracked files and commit in one step
+  git commit -am "fix(nav): resolve mobile dropdown bug"
   ```
 
 ---
 
-## 🔍 3. History & Inspection
+### 3. History & Inspection
 
-### `git log`
-- **Explanation:** Shows the commit history for the current branch in reverse chronological order.
-- **Syntax:**
-  ```bash
-  git log [--oneline] [--graph] [--decorate] [-n <count>]
-  ```
+#### `git log`
+- **Explanation:** Lists the commit history in reverse chronological order for the current branch.
+- **Syntax:** `git log [--oneline] [--graph] [--decorate] [-n <count>]`
 - **Example:**
   ```bash
-  # Compact visual graph of recent commits
   git log --oneline --graph --all -n 10
   ```
 
-### `git diff`
-- **Explanation:** Displays line-by-line differences between the working tree, staging area, or separate commits.
-- **Syntax:**
-  ```bash
-  git diff [<commit-a>] [<commit-b>] [--staged] [<file-path>]
-  ```
+#### `git diff`
+- **Explanation:** Compares and displays line-by-line differences between the working tree, staging area, or commits.
+- **Syntax:** `git diff [<commit>] [--staged] [<file>]`
 - **Example:**
   ```bash
-  # View unstaged changes in working directory
+  # View unstaged changes
   git diff
 
-  # View staged changes compared to the last commit (HEAD)
+  # View staged changes
   git diff --staged
   ```
 
-### `git show`
-- **Explanation:** Inspects metadata and displays content changes for a specific commit hash, tag, or object.
-- **Syntax:**
-  ```bash
-  git show [<object-id>]
-  ```
+#### `git show`
+- **Explanation:** Displays the commit metadata, author details, and diff for a specific commit hash or object.
+- **Syntax:** `git show [<commit-hash>|HEAD]`
 - **Example:**
   ```bash
-  # Show details of the latest commit
   git show HEAD
-
-  # Show details and patch for a specific commit hash
-  git show a1b2c3d
   ```
 
 ---
 
-## 🌿 4. Branching & Merging
+### 4. Basic File Operations & Ignore Rules
 
-### `git branch`
-- **Explanation:** Lists, creates, renames, or deletes branches in your local repository.
-- **Syntax:**
-  ```bash
-  git branch [-a] [-d|-D <branch-name>] [<new-branch-name>]
-  ```
+#### `git rm`
+- **Explanation:** Removes files from both disk and the Git staging index (or un-tracks without deleting from disk).
+- **Syntax:** `git rm [-f] [--cached] <file-path>`
 - **Example:**
   ```bash
-  # List all local branches
+  # Stop tracking .env without deleting from local disk
+  git rm --cached .env
+  ```
+
+#### `git mv`
+- **Explanation:** Renames or moves a file and automatically stages the change.
+- **Syntax:** `git mv <source> <destination>`
+- **Example:**
+  ```bash
+  git mv server.js app.js
+  ```
+
+#### `.gitignore` Configuration
+- **Explanation:** Plaintext file telling Git which files and directories to ignore and never track.
+- **Example:**
+  ```gitignore
+  node_modules/
+  .env
+  dist/
+  *.log
+  ```
+
+---
+
+## 🟡 TIER 2: MEDIUM (Branching, Merging & Undoing)
+
+Commands and workflows needed for feature development, isolated experimentation, resolving mistakes, and team integration.
+
+### 1. Branch Management & Switching
+
+#### `git branch`
+- **Explanation:** Lists, creates, renames, or deletes local branches.
+- **Syntax:** `git branch [-a] [-d|-D <branch-name>] [<new-branch>]`
+- **Example:**
+  ```bash
+  # List branches
   git branch
 
-  # Create a new branch named 'feature/login' without switching to it
-  git branch feature/login
-
-  # Safely delete a merged branch
+  # Safely delete merged branch
   git branch -d feature/login
   ```
 
-### `git checkout` / `git switch`
-- **Explanation:** Updates files in the working tree to match the version in specified branches or commits (use `git switch` for branch transitions in modern Git).
-- **Syntax:**
-  ```bash
-  git checkout <branch-name> | -b <new-branch-name>
-  git switch <branch-name> | -c <new-branch-name>
-  ```
+#### `git checkout` / `git switch`
+- **Explanation:** Switches between branches or checks out specific commits (modern Git recommends `git switch`).
+- **Syntax:** `git switch <branch-name> | -c <new-branch>`
 - **Example:**
   ```bash
-  # Switch to an existing branch (legacy checkout)
-  git checkout main
-
-  # Create and switch to a new branch (modern syntax)
+  # Create and switch to new branch
   git switch -c feature/payment-gateway
   ```
 
-### `git merge`
-- **Explanation:** Joins two or more development histories together into the currently active branch.
-- **Syntax:**
-  ```bash
-  git merge <source-branch> [--no-ff]
-  ```
+---
+
+### 2. Merging & Stashing
+
+#### `git merge`
+- **Explanation:** Merges history from another branch into the currently active branch.
+- **Syntax:** `git merge <source-branch> [--no-ff]`
 - **Example:**
   ```bash
-  # Ensure you are on the target branch first
   git switch main
-
-  # Merge 'feature/login' into 'main'
-  git merge feature/login
+  git merge feature/payment-gateway
   ```
 
-### `git stash`
-- **Explanation:** Temporarily shelves (stashes) uncommitted working directory changes so you can work on another task with a clean working copy.
-- **Syntax:**
-  ```bash
-  git stash [push -m "<message>"|pop|list|drop|apply]
-  ```
+#### `git stash`
+- **Explanation:** Temporarily saves dirty working tree changes without committing, giving you a clean slate.
+- **Syntax:** `git stash [push -m "<msg>"|pop|list|drop|apply]`
 - **Example:**
   ```bash
-  # Stash current modified and staged changes with a note
-  git stash push -m "WIP: redesigning navigation bar"
+  # Stash current work with message
+  git stash push -m "WIP: cart checkout logic"
 
-  # Restore and remove the most recently stashed changes
+  # Pop changes back when ready
   git stash pop
   ```
 
 ---
 
-## ⏪ 5. Undoing Changes
+### 3. Undoing Mistakes Safely
 
-### `git reset`
-- **Explanation:** Resets current `HEAD` and optionally updates the staging area and working tree to a specified state.
-- **Syntax:**
-  ```bash
-  git reset [--soft|--mixed|--hard] <commit-reference>
-  ```
+#### `git checkout -- <file>` / `git restore <file>`
+- **Explanation:** Discards uncommitted modifications in a specific file, resetting it back to `HEAD`.
+- **Syntax:** `git restore <file-path>`
 - **Example:**
   ```bash
-  # Unstage files while keeping working directory modifications (mixed)
-  git reset HEAD src/app.py
-
-  # Move HEAD back 1 commit, keep changes staged (soft)
-  git reset --soft HEAD~1
-
-  # Discard ALL uncommitted changes and match HEAD (destructive)
-  git reset --hard HEAD
+  git restore src/config.json
   ```
 
-### `git revert`
-- **Explanation:** Creates a new commit that applies the exact inverse changes of a specified commit, safely preserving public history.
-- **Syntax:**
-  ```bash
-  git revert <commit-hash> [--no-edit]
-  ```
+#### `git revert`
+- **Explanation:** Creates a new commit that inverts the changes of a prior commit, safely rolling back changes in public branches.
+- **Syntax:** `git revert <commit-hash> [--no-edit]`
 - **Example:**
   ```bash
-  # Safely roll back changes introduced in commit 'a1b2c3d'
   git revert a1b2c3d
   ```
 
-### `git checkout -- <file>` / `git restore <file>`
-- **Explanation:** Discards local uncommitted changes in a specific file, restoring it to match the `HEAD` commit.
-- **Syntax:**
-  ```bash
-  git checkout -- <file-path>     # Legacy syntax
-  git restore <file-path>         # Modern syntax (Git 2.23+)
-  ```
+#### `git reset`
+- **Explanation:** Rewinds current `HEAD` to an older commit with options to keep or discard working tree changes.
+- **Syntax:** `git reset [--soft|--mixed|--hard] <commit>`
 - **Example:**
   ```bash
-  # Discard modifications in config.json (legacy)
-  git checkout -- config.json
+  # Soft reset: moves HEAD, keeps changes staged
+  git reset --soft HEAD~1
 
-  # Discard modifications in config.json (modern)
-  git restore config.json
+  # Hard reset: permanently discards all changes (destructive)
+  git reset --hard HEAD~1
   ```
 
 ---
 
-## 🔀 6. Advanced History & Branch Manipulation
+### 4. Tagging & File Attributes
 
-### `git rebase`
-- **Explanation:** Reapplies commits from the current branch on top of another base tip to maintain a clean, linear commit history.
+#### `git tag`
+- **Explanation:** Marks a specific commit in history with a human-readable release version tag.
+- **Syntax:** `git tag [-a <tag-name> -m "<msg>"]`
+- **Example:**
+  ```bash
+  git tag -a v1.0.0 -m "Release version 1.0.0"
+  ```
+
+#### `.gitattributes`
+- **Explanation:** Configures repository path attributes such as line ending normalization (`LF`/`CRLF`) and binary designations.
+- **Example:**
+  ```gitattributes
+  * text=auto eol=lf
+  *.bat text eol=crlf
+  *.png binary
+  ```
+
+---
+
+## 🔴 TIER 3: ADVANCED (Power User, Internals & Forensics)
+
+Commands used by senior engineers for history rewriting, bug hunting, multiple worktrees, submodules, and low-level repository optimization.
+
+### 1. History Rewriting & Selective Commits
+
+#### `git rebase` (Standard & Interactive)
+- **Explanation:** Reapplies commits from your branch on top of another base to maintain a clean linear history, or rewrite past commits interactively.
 - **Syntax:**
   ```bash
   git rebase <base-branch>
-  git rebase -i <commit-reference>
+  git rebase -i <commit-hash>
   ```
 - **Example:**
   ```bash
-  # Rebase current feature branch on top of latest main
+  # Rebase on main
   git rebase main
 
-  # Interactive rebase of the last 4 commits (squash, edit, reword, drop)
+  # Interactive rebase of last 4 commits (squash/reword/edit/drop)
   git rebase -i HEAD~4
   ```
 
-### `git cherry-pick`
-- **Explanation:** Applies the changes introduced by one or more existing commits from another branch onto your currently checked-out branch.
-- **Syntax:**
-  ```bash
-  git cherry-pick <commit-hash> [--no-commit]
-  ```
+#### `git cherry-pick`
+- **Explanation:** Applies the changes introduced by an existing commit from another branch directly onto your active branch.
+- **Syntax:** `git cherry-pick <commit-hash> [--no-commit]`
 - **Example:**
   ```bash
-  # Apply a specific hotfix commit from 'main' into 'release-v1.0'
-  git cherry-pick d3e4f5a
-  ```
-
-### `git reflog`
-- **Explanation:** Records every single update made to tip of branches and `HEAD`, providing a safety net to recover deleted branches or lost commits.
-- **Syntax:**
-  ```bash
-  git reflog [show]
-  ```
-- **Example:**
-  ```bash
-  # Inspect history of HEAD movements to find a lost commit hash
-  git reflog
-
-  # Restore state to a previous point in reflog
-  git reset --hard HEAD@{3}
+  git cherry-pick f8c9b2a
   ```
 
 ---
 
-## 🔬 7. Debugging & Forensics
+### 2. Recovery & Debugging Forensics
 
-### `git blame`
-- **Explanation:** Annotates each line in a file with the commit ID, author, and timestamp of the last edit.
-- **Syntax:**
-  ```bash
-  git blame [-L <start>,<end>] <file-path>
-  ```
+#### `git reflog`
+- **Explanation:** Records every movement of `HEAD` and branch references, providing a recovery safety net for lost commits or deleted branches.
+- **Syntax:** `git reflog [show]`
 - **Example:**
   ```bash
-  # Inspect who modified lines 20 through 45 in server.ts
-  git blame -L 20,45 server.ts
+  # View reflog history
+  git reflog
+
+  # Restore lost commit
+  git reset --hard HEAD@{2}
   ```
 
-### `git bisect`
-- **Explanation:** Uses binary search across commit history to rapidly pinpoint the exact commit that introduced a bug or regression.
-- **Syntax:**
-  ```bash
-  git bisect [start|bad|good|reset]
-  ```
+#### `git blame`
+- **Explanation:** Shows the commit hash, author, and timestamp for each line in a file to inspect historical modifications.
+- **Syntax:** `git blame [-L <start>,<end>] <file-path>`
 - **Example:**
   ```bash
-  # Start bisect session
+  git blame -L 15,30 src/services/auth.ts
+  ```
+
+#### `git bisect`
+- **Explanation:** Performs an automated binary search through commit history to quickly find the exact commit that introduced a bug.
+- **Syntax:** `git bisect [start|bad|good|reset]`
+- **Example:**
+  ```bash
   git bisect start
-
-  # Mark current HEAD as broken/bad
-  git bisect bad
-
-  # Mark a known working commit/tag as good
-  git bisect good v1.2.0
-
-  # Git checks out intermediate commits for testing; when done, terminate session:
+  git bisect bad              # Current commit is broken
+  git bisect good v1.1.0      # v1.1.0 was working
+  # Test intermediate commits prompted by Git, then:
   git bisect reset
   ```
 
 ---
 
-## 🗃️ 8. File & Working Tree Operations
+### 3. Advanced Workspaces & Modularity
 
-### `git rm`
-- **Explanation:** Removes files from both the working directory and the staging area index (or index only).
-- **Syntax:**
-  ```bash
-  git rm [-f] [--cached] <file-path>
-  ```
+#### `git worktree`
+- **Explanation:** Manages multiple working directories linked to the same repository, allowing simultaneous work on multiple branches without switching folders.
+- **Syntax:** `git worktree [add|list|remove] <path> [<branch>]`
 - **Example:**
   ```bash
-  # Remove file from disk and stage removal
-  git rm old_module.js
+  # Check out a hotfix branch in a separate folder
+  git worktree add ../hotfix hotfix/critical-patch
 
-  # Stop tracking a file without deleting it from disk (e.g. .env)
-  git rm --cached .env
+  # Remove worktree when done
+  git worktree remove ../hotfix
   ```
 
-### `git mv`
-- **Explanation:** Moves or renames a file, directory, or symlink and stages the change automatically.
-- **Syntax:**
-  ```bash
-  git mv <source> <destination>
-  ```
+#### `git submodule`
+- **Explanation:** Keeps an external Git repository as a tracked subdirectory within another parent Git repository.
+- **Syntax:** `git submodule [add|init|update] <repo-url> [<path>]`
 - **Example:**
   ```bash
-  # Rename a file cleanly while preserving history
-  git mv utils.js helpers.js
-  ```
-
-### `git clean`
-- **Explanation:** Removes untracked files and directories from the working tree to restore a clean state.
-- **Syntax:**
-  ```bash
-  git clean [-n] [-f] [-d]
-  ```
-- **Example:**
-  ```bash
-  # Dry-run: preview untracked files that will be deleted
-  git clean -nd
-
-  # Force delete all untracked files and directories
-  git clean -fd
-  ```
-
----
-
-## 🏷️ 9. Tags & Version Releases
-
-### `git tag`
-- **Explanation:** Creates, lists, verifies, or deletes specific points in history as release tags (lightweight or annotated).
-- **Syntax:**
-  ```bash
-  git tag [-a <tag-name> -m "<message>"] [-d <tag-name>]
-  ```
-- **Example:**
-  ```bash
-  # Create an annotated release tag with a message
-  git tag -a v1.0.0 -m "Release version 1.0.0: Initial stable release"
-
-  # List all existing tags
-  git tag -l
-
-  # Delete a local tag
-  git tag -d v0.9.0-beta
-  ```
-
----
-
-## 🏢 10. Advanced Workflows: Worktrees & Submodules
-
-### `git worktree`
-- **Explanation:** Manages multiple working trees attached to the same repository, allowing you to check out multiple branches simultaneously in separate folders.
-- **Syntax:**
-  ```bash
-  git worktree [add|list|remove|prune] <path> [<branch>]
-  ```
-- **Example:**
-  ```bash
-  # Check out a hotfix branch into a separate parallel directory without switching context
-  git worktree add ../hotfix-dir hotfix/security-patch
-
-  # List active worktrees
-  git worktree list
-
-  # Remove a worktree directory when finished
-  git worktree remove ../hotfix-dir
-  ```
-
-### `git submodule`
-- **Explanation:** Incorporates and tracks external Git repositories as subdirectories inside your main repository.
-- **Syntax:**
-  ```bash
-  git submodule [add|init|update|status] <repository-url> [<path>]
-  ```
-- **Example:**
-  ```bash
-  # Add an external shared library repository as a submodule
-  git submodule add https://github.com/org/shared-lib.git libs/shared
-
-  # Initialize and clone submodules after pulling parent repo
+  git submodule add https://github.com/org/core-lib.git libs/core
   git submodule update --init --recursive
   ```
 
 ---
 
-## 🧹 11. Maintenance & Internals
+### 4. Maintenance & Exports
 
-### `git archive`
-- **Explanation:** Creates a clean zip or tarball archive containing files from a named commit or branch without Git metadata (`.git`).
-- **Syntax:**
-  ```bash
-  git archive --format=<zip|tar> --output=<filename> <branch|tag>
-  ```
+#### `git clean`
+- **Explanation:** Cleans untracked files and directories out of the working tree.
+- **Syntax:** `git clean [-n] [-f] [-d]`
 - **Example:**
   ```bash
-  # Export release snapshot as a ZIP file
-  git archive --format=zip --output=release-v1.0.0.zip main
+  # Dry-run preview
+  git clean -nd
+
+  # Force clean untracked files and folders
+  git clean -fd
   ```
 
-### `git gc` & `git fsck`
-- **Explanation:** Optimizes repository performance by packing objects (`git gc`) and verifies the data integrity of the internal object database (`git fsck`).
-- **Syntax:**
-  ```bash
-  git gc [--prune=<date>]
-  git fsck [--full]
-  ```
+#### `git archive`
+- **Explanation:** Packages files from a commit or branch into a clean `.zip` or `.tar` archive without the `.git` folder.
+- **Syntax:** `git archive --format=<zip|tar> --output=<filename> <branch>`
 - **Example:**
   ```bash
-  # Clean up loose objects and optimize repository size
+  git archive --format=zip --output=release-v1.0.zip main
+  ```
+
+#### `git gc` & `git fsck`
+- **Explanation:** Optimizes repository performance by packing objects (`git gc`) and validates the integrity of the Git object store (`git fsck`).
+- **Syntax:**
+  ```bash
   git gc --prune=now
-
-  # Verify internal object database integrity
   git fsck --full
-  ```
-
----
-
-## 📄 12. Repository Configuration Files
-
-### `.gitignore`
-Controls files and patterns that Git intentionally ignores and will never track.
-- **Example `.gitignore` pattern file:**
-  ```gitignore
-  # Dependencies
-  node_modules/
-  __pycache__/
-  venv/
-
-  # Environment secrets & credentials
-  .env
-  *.pem
-  *.key
-
-  # OS and IDE files
-  .DS_Store
-  Thumbs.db
-  .vscode/
-  .idea/
-
-  # Build outputs
-  dist/
-  build/
-  *.log
-  ```
-
-### `.gitattributes`
-Defines attributes on per-path basis (line-ending normalization across OSes, diff behavior for binary files, LFS tracking).
-- **Example `.gitattributes` file:**
-  ```gitattributes
-  # Auto-normalize line endings to LF on commit
-  * text=auto eol=lf
-
-  # Force CRLF for Windows-specific batch scripts
-  *.bat text eol=crlf
-
-  # Treat images and archives as binary
-  *.png binary
-  *.jpg binary
-  *.zip binary
   ```
